@@ -258,6 +258,7 @@
             Controls.Add(boxOptions);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 4, 3, 4);
+            MaximizeBox = false;
             MaximumSize = new Size(400, 320);
             MinimumSize = new Size(400, 320);
             Name = "Passgen";
