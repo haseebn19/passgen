@@ -27,15 +27,10 @@ Password Generator is a Windows Forms application designed to generate strong an
    ```powershell
    git clone https://github.com/haseebn19/passgen.git
    ```
+   
+2. Open the solution file in Visual Studio and publish the project.
 
-2. Navigate to the project directory:
-   ```powershell
-   cd passgen
-   ```
-
-3. Open the solution file in Visual Studio and build the project.
-
-4. Run the application.
+3. Run the application.
 
 ## Usage
 
