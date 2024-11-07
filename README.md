@@ -1,6 +1,6 @@
 # Password Generator
 
-![Passgen Logo](logo.png)
+<img src="logo.png" width="250">
 
 Password Generator is a Windows Forms application designed to generate strong and customizable passwords. Built with C# and .NET 6.0, this application provides a user-friendly interface for generating passwords with different character sets and lengths. It also evaluates the strength of the generated passwords in real-time using the Zxcvbn library.
 
