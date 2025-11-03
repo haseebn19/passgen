@@ -4,6 +4,16 @@
 
 Password Generator is a Windows Forms application designed to generate strong and customizable passwords. Built with C# and .NET 6.0, this application provides a user-friendly interface for generating passwords with different character sets and lengths. It also evaluates the strength of the generated passwords in real-time using the Zxcvbn library.
 
+## Screenshots
+
+**Main Window**
+
+<img src="screenshot-window.png" alt="Main Window" width="500">
+
+**After Generating a Password**
+
+<img src="screenshot-generated.png" alt="Generated Output" width="500">
+
 ## Features
 
 - **Character Set Selection**: Choose from lowercase, uppercase, numbers, and symbols for password generation.
