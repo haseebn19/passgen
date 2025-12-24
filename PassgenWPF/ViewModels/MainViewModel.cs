@@ -1,23 +1,22 @@
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PassgenWPF.Services;
 using Zxcvbn;
 
 namespace PassgenWPF.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private const string LowercaseChars = "abcdefghijklmnopqrstuvwxyz";
-    private const string UppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private const string NumberChars = "0123456789";
-    private const string SymbolChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-
+    private readonly IPasswordGenerator _generator;
     private CancellationTokenSource _strengthCts = new();
 
-    public MainViewModel()
+    public MainViewModel() : this(new PasswordGenerator()) { }
+
+    public MainViewModel(IPasswordGenerator generator)
     {
+        _generator = generator;
         IncludeLowercase = true;
         IncludeUppercase = true;
         IncludeNumbers = true;
@@ -75,68 +74,31 @@ public partial class MainViewModel : ObservableObject
         IsGenerating = true;
         try
         {
-            var password = await Task.Run(GeneratePassword);
-            if (!string.IsNullOrEmpty(password))
+            var options = new PasswordOptions
             {
-                GeneratedPassword = password;
+                IncludeLowercase = IncludeLowercase,
+                IncludeUppercase = IncludeUppercase,
+                IncludeNumbers = IncludeNumbers,
+                IncludeSymbols = IncludeSymbols,
+                Length = PasswordLength,
+                UniqueChars = UniqueChars
+            };
+
+            var result = await Task.Run(() => _generator.Generate(options));
+
+            if (result.Success)
+            {
+                GeneratedPassword = result.Password;
+            }
+            else
+            {
+                ShowWarning(result.ErrorMessage!, "Invalid Configuration");
             }
         }
         finally
         {
             IsGenerating = false;
         }
-    }
-
-    private string GeneratePassword()
-    {
-        var builder = new StringBuilder();
-        var rand = new Random();
-        var charSets = new List<string>();
-
-        if (IncludeLowercase) charSets.Add(LowercaseChars);
-        if (IncludeUppercase) charSets.Add(UppercaseChars);
-        if (IncludeNumbers) charSets.Add(NumberChars);
-        if (IncludeSymbols) charSets.Add(SymbolChars);
-
-        if (charSets.Count == 0)
-        {
-            ShowWarning("Please select at least one character set.", "No Character Set");
-            return string.Empty;
-        }
-
-        var length = PasswordLength;
-        var uniqueCount = UniqueChars;
-
-        if (uniqueCount > length)
-        {
-            ShowWarning("Unique characters cannot exceed password length.", "Invalid Configuration");
-            return string.Empty;
-        }
-
-        var totalAvailable = charSets.Sum(s => s.Length);
-        if (uniqueCount > totalAvailable)
-        {
-            ShowWarning($"Not enough unique characters available. Maximum: {totalAvailable}", "Invalid Configuration");
-            return string.Empty;
-        }
-
-        // First, pick unique characters
-        var pool = charSets.SelectMany(s => s.ToCharArray()).ToList();
-        for (var i = 0; i < uniqueCount; i++)
-        {
-            var idx = rand.Next(pool.Count);
-            builder.Append(pool[idx]);
-            pool.RemoveAt(idx);
-        }
-
-        // Fill remaining with any characters
-        for (var i = uniqueCount; i < length; i++)
-        {
-            var set = charSets[rand.Next(charSets.Count)];
-            builder.Append(set[rand.Next(set.Length)]);
-        }
-
-        return builder.ToString();
     }
 
     private static void ShowWarning(string message, string title)
