@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>..\logo.ico</ApplicationIcon>
+    <AssemblyName>Passgen</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="..\logo.ico" Link="logo.ico"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2"/>
+    <PackageReference Include="zxcvbn-core" Version="7.0.92"/>
+  </ItemGroup>
+
+</Project>
