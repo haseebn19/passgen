@@ -4,6 +4,8 @@ VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassgenWPF", "PassgenWPF\PassgenWPF.csproj", "{B8E5A7C1-3D4F-4E2B-9A1C-F6E8D0A3B2C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassgenWPF.Tests", "PassgenWPF.Tests\PassgenWPF.Tests.csproj", "{C7A2D8F3-5E6B-4A1C-8D9E-F0B3C4A5D6E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{B8E5A7C1-3D4F-4E2B-9A1C-F6E8D0A3B2C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8E5A7C1-3D4F-4E2B-9A1C-F6E8D0A3B2C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8E5A7C1-3D4F-4E2B-9A1C-F6E8D0A3B2C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A2D8F3-5E6B-4A1C-8D9E-F0B3C4A5D6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A2D8F3-5E6B-4A1C-8D9E-F0B3C4A5D6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A2D8F3-5E6B-4A1C-8D9E-F0B3C4A5D6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A2D8F3-5E6B-4A1C-8D9E-F0B3C4A5D6E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
