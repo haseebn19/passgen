@@ -2,38 +2,66 @@ name: CI
 
 on:
   push:
-    branches: ['**']
   pull_request:
-    branches: ['**']
 
 jobs:
-  build-and-test:
+  build:
+    name: Build & Lint
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 8.x
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: 8.x
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build (with linting)
+      - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test --configuration Release --no-build --verbosity normal
+  test:
+    name: Test with Coverage
+    runs-on: windows-latest
 
-      - name: Test with coverage
-        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Upload coverage
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Tests with Coverage
+        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage/**/coverage.cobertura.xml
-          retention-days: 7
+          retention-days: 30
+
+      - name: Coverage Summary
+        shell: pwsh
+        run: |
+          $xml = [xml](Get-Content (Get-ChildItem -Path coverage -Filter "coverage.cobertura.xml" -Recurse | Select-Object -First 1).FullName)
+          $lineRate = [math]::Round([double]$xml.coverage.'line-rate' * 100, 2)
+          $branchRate = [math]::Round([double]$xml.coverage.'branch-rate' * 100, 2)
+          
+          @"
+          ## 📊 Test Coverage Report
+          
+          | Metric | Coverage |
+          |--------|----------|
+          | Lines | $lineRate% |
+          | Branches | $branchRate% |
+          
+          📁 **Full report available as artifact: coverage-report**
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
