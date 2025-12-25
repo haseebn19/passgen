@@ -18,10 +18,13 @@ A modern WPF password generator with real-time strength evaluation.
 ## Prerequisites
 
 - Windows 10/11
-- .NET 8.0 SDK
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0/runtime)
 
 ## Installation
 
+Download the latest release from [Releases](https://github.com/haseebn19/passgen/releases).
+
+Or build from source:
 ```powershell
 git clone https://github.com/haseebn19/passgen.git
 cd passgen
@@ -72,9 +75,17 @@ Linting is enforced via `.editorconfig` and .NET analyzers during build.
 
 ## Building
 
+Debug build:
 ```powershell
-dotnet build --configuration Release
+dotnet build
 ```
+
+Release build (single file):
+```powershell
+dotnet publish -c Release
+```
+
+Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
 
 ## Project Structure
 
@@ -83,6 +94,7 @@ passgen/
 ├── PassgenWPF/              # Main application
 │   ├── Converters/          # XAML value converters
 │   ├── Helpers/             # Window utilities
+│   ├── Services/            # Business logic
 │   ├── Themes/              # Colors and styles
 │   ├── ViewModels/          # MVVM view models
 │   └── Views/               # XAML windows
