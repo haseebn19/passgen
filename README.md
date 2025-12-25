@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/haseebn19/passgen/actions/workflows/ci.yml/badge.svg)](https://github.com/haseebn19/passgen/actions/workflows/ci.yml)
 
-<img src="logo.png" alt="Logo" width="250">
+<img src="logo.svg" alt="Logo" width="250">
 
 A modern WPF password generator with real-time strength evaluation.
 
