@@ -36,7 +36,7 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="🔐 Password Generator" 
+            <TextBlock Text="Password Generator" 
                        Style="{StaticResource HeadingStyle}"
                        FontSize="28"/>
             <TextBlock Text="Generate strong, secure passwords instantly" 
@@ -117,7 +117,7 @@
                     </TextBlock>
                     <Slider Value="{Binding UniqueChars}"
                             Minimum="0"
-                            Maximum="{Binding PasswordLength}"
+                            Maximum="{Binding MaxUniqueChars}"
                             Style="{StaticResource ModernSliderStyle}"
                             ToolTip="{Binding UniqueChars}"/>
                 </StackPanel>
@@ -190,8 +190,6 @@
                     Style="{StaticResource PrimaryButtonStyle}"
                     IsEnabled="{Binding IsGenerating, Converter={converters:InverseBoolConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="⚡" FontSize="16" Margin="0,0,8,0" 
-                               Visibility="{Binding IsGenerating, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
                     <TextBlock Text="Generating..."
                                Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <TextBlock Text="Generate Password"

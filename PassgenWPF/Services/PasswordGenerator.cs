@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace PassgenWPF.Services;
 
 public class PasswordOptions
@@ -32,12 +34,6 @@ public class PasswordGenerator : IPasswordGenerator
     private const string NumberChars = "0123456789";
     private const string SymbolChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
-    private readonly Random _random;
-
-    public PasswordGenerator() : this(new Random()) { }
-
-    public PasswordGenerator(Random random) => _random = random;
-
     public PasswordGenerationResult Generate(PasswordOptions options)
     {
         var charSets = GetCharacterSets(options);
@@ -66,26 +62,38 @@ public class PasswordGenerator : IPasswordGenerator
         return sets;
     }
 
-    private string BuildPassword(List<string> charSets, int length, int uniqueCount)
+    private static string BuildPassword(List<string> charSets, int length, int uniqueCount)
     {
         var chars = new char[length];
         var pool = charSets.SelectMany(s => s.ToCharArray()).ToList();
 
-        // Unique characters first
+        // Pick unique characters first
         for (var i = 0; i < uniqueCount; i++)
         {
-            var idx = _random.Next(pool.Count);
+            var idx = RandomNumberGenerator.GetInt32(pool.Count);
             chars[i] = pool[idx];
             pool.RemoveAt(idx);
         }
 
-        // Fill remaining
+        // Fill remaining positions
         for (var i = uniqueCount; i < length; i++)
         {
-            var set = charSets[_random.Next(charSets.Count)];
-            chars[i] = set[_random.Next(set.Length)];
+            var set = charSets[RandomNumberGenerator.GetInt32(charSets.Count)];
+            chars[i] = set[RandomNumberGenerator.GetInt32(set.Length)];
         }
 
+        // Shuffle to avoid predictable patterns
+        Shuffle(chars);
+
         return new string(chars);
+    }
+
+    private static void Shuffle(char[] array)
+    {
+        for (var i = array.Length - 1; i > 0; i--)
+        {
+            var j = RandomNumberGenerator.GetInt32(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
     }
 }

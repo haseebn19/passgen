@@ -7,10 +7,6 @@ public class PasswordGeneratorTests
 {
     private readonly PasswordGenerator _generator = new();
 
-    // ========================================================================
-    // SUCCESS CASES
-    // ========================================================================
-
     [Fact]
     public void Generate_DefaultOptions_ReturnsPassword()
     {
@@ -161,10 +157,6 @@ public class PasswordGeneratorTests
         Assert.Equal(10, result.Password.Distinct().Count());
     }
 
-    // ========================================================================
-    // ERROR CASES
-    // ========================================================================
-
     [Fact]
     public void Generate_NoCharacterSets_ReturnsError()
     {
@@ -200,10 +192,10 @@ public class PasswordGeneratorTests
         {
             IncludeLowercase = false,
             IncludeUppercase = false,
-            IncludeNumbers = true,  // Only 10 digits available
+            IncludeNumbers = true,
             IncludeSymbols = false,
             Length = 20,
-            UniqueChars = 15        // Requesting 15 unique from 10 available
+            UniqueChars = 15
         };
 
         var result = _generator.Generate(options);
@@ -212,39 +204,16 @@ public class PasswordGeneratorTests
         Assert.Contains("10", result.ErrorMessage);
     }
 
-    // ========================================================================
-    // DETERMINISTIC TESTS (with seeded random)
-    // ========================================================================
-
     [Fact]
-    public void Generate_WithSeed_ProducesDeterministicResult()
+    public void Generate_MultipleCallsProduceDifferentResults()
     {
-        var gen1 = new PasswordGenerator(new Random(42));
-        var gen2 = new PasswordGenerator(new Random(42));
         var options = new PasswordOptions { Length = 20, UniqueChars = 0 };
 
-        var result1 = gen1.Generate(options);
-        var result2 = gen2.Generate(options);
-
-        Assert.Equal(result1.Password, result2.Password);
-    }
-
-    [Fact]
-    public void Generate_DifferentSeeds_ProducesDifferentResults()
-    {
-        var gen1 = new PasswordGenerator(new Random(42));
-        var gen2 = new PasswordGenerator(new Random(99));
-        var options = new PasswordOptions { Length = 20, UniqueChars = 0 };
-
-        var result1 = gen1.Generate(options);
-        var result2 = gen2.Generate(options);
+        var result1 = _generator.Generate(options);
+        var result2 = _generator.Generate(options);
 
         Assert.NotEqual(result1.Password, result2.Password);
     }
-
-    // ========================================================================
-    // EDGE CASES
-    // ========================================================================
 
     [Fact]
     public void Generate_MinimumLength_Succeeds()

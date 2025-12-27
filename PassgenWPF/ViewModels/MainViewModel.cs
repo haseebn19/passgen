@@ -9,6 +9,11 @@ namespace PassgenWPF.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    private const int LowercaseCount = 26;
+    private const int UppercaseCount = 26;
+    private const int NumberCount = 10;
+    private const int SymbolCount = 32;
+
     private readonly IPasswordGenerator _generator;
     private CancellationTokenSource _strengthCts = new();
 
@@ -28,19 +33,55 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
     private bool _includeLowercase;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
     private bool _includeUppercase;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
     private bool _includeNumbers;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
     private bool _includeSymbols;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
     private int _passwordLength;
+
+    partial void OnPasswordLengthChanged(int value)
+    {
+        // Clamp unique chars when password length decreases
+        if (UniqueChars > MaxUniqueChars)
+            UniqueChars = MaxUniqueChars;
+    }
+
+    partial void OnIncludeLowercaseChanged(bool value) => ClampUniqueChars();
+    partial void OnIncludeUppercaseChanged(bool value) => ClampUniqueChars();
+    partial void OnIncludeNumbersChanged(bool value) => ClampUniqueChars();
+    partial void OnIncludeSymbolsChanged(bool value) => ClampUniqueChars();
+
+    private void ClampUniqueChars()
+    {
+        if (UniqueChars > MaxUniqueChars)
+            UniqueChars = MaxUniqueChars;
+    }
+
+    public int MaxUniqueChars
+    {
+        get
+        {
+            var available = 0;
+            if (IncludeLowercase) available += LowercaseCount;
+            if (IncludeUppercase) available += UppercaseCount;
+            if (IncludeNumbers) available += NumberCount;
+            if (IncludeSymbols) available += SymbolCount;
+            return Math.Min(available, PasswordLength);
+        }
+    }
 
     [ObservableProperty]
     private int _uniqueChars;
@@ -66,7 +107,7 @@ public partial class MainViewModel : ObservableObject
     private bool _isGenerating;
 
     [ObservableProperty]
-    private string _copyButtonText = "📋 Copy";
+    private string _copyButtonText = "Copy";
 
     [RelayCommand]
     private async Task GeneratePasswordAsync()
@@ -117,9 +158,9 @@ public partial class MainViewModel : ObservableObject
         }
 
         Clipboard.SetText(GeneratedPassword);
-        CopyButtonText = "✓ Copied!";
+        CopyButtonText = "Copied!";
         await Task.Delay(2000);
-        CopyButtonText = "📋 Copy";
+        CopyButtonText = "Copy";
     }
 
     private async void EvaluateStrengthAsync(string password)
@@ -135,8 +176,11 @@ public partial class MainViewModel : ObservableObject
         _strengthCts.Cancel();
         _strengthCts = new CancellationTokenSource();
 
+        // Reset visual state during evaluation
         IsEvaluating = true;
+        StrengthValue = 0;
         StrengthText = "Evaluating...";
+        StrengthBrush = new SolidColorBrush(Colors.Gray);
 
         try
         {

@@ -24,7 +24,7 @@ public class MainViewModelTests
     {
         var vm = new MainViewModel();
 
-        Assert.Equal("📋 Copy", vm.CopyButtonText);
+        Assert.Equal("Copy", vm.CopyButtonText);
     }
 
     [Theory]
