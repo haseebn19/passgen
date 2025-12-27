@@ -51,17 +51,20 @@ jobs:
       - name: Coverage Summary
         shell: pwsh
         run: |
-          $xml = [xml](Get-Content (Get-ChildItem -Path coverage -Filter "coverage.cobertura.xml" -Recurse | Select-Object -First 1).FullName)
-          $lineRate = [math]::Round([double]$xml.coverage.'line-rate' * 100, 2)
-          $branchRate = [math]::Round([double]$xml.coverage.'branch-rate' * 100, 2)
-          
-          @"
-          ## Test Coverage Report
-          
-          | Metric | Coverage |
-          |--------|----------|
-          | Lines | $lineRate% |
-          | Branches | $branchRate% |
-          
-          **Full report available as artifact: coverage-report**
-          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          $coverageFile = Get-ChildItem -Path coverage -Filter "coverage.cobertura.xml" -Recurse | Select-Object -First 1
+          if ($coverageFile) {
+            $xml = [xml](Get-Content $coverageFile.FullName)
+            $lineRate = [math]::Round([double]$xml.coverage.'line-rate' * 100, 2)
+            $branchRate = [math]::Round([double]$xml.coverage.'branch-rate' * 100, 2)
+            
+            "## Test Coverage Report" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Metric | Coverage |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "|--------|----------|" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Lines | $lineRate% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Branches | $branchRate% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "Full report available as artifact: coverage-report" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          } else {
+            "Coverage file not found" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
