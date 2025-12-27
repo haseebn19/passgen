@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+  test:
+    name: Test with Coverage
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Tests with Coverage
+        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/**/coverage.cobertura.xml
+          retention-days: 30
+
+      - name: Coverage Summary
+        shell: pwsh
+        run: |
+          $coverageFile = Get-ChildItem -Path coverage -Filter "coverage.cobertura.xml" -Recurse | Select-Object -First 1
+          if ($coverageFile) {
+            $xml = [xml](Get-Content $coverageFile.FullName)
+            $lineRate = [math]::Round([double]$xml.coverage.'line-rate' * 100, 2)
+            $branchRate = [math]::Round([double]$xml.coverage.'branch-rate' * 100, 2)
+            
+            "## Test Coverage Report" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Metric | Coverage |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "|--------|----------|" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Lines | $lineRate% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| Branches | $branchRate% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "Full report available as artifact: coverage-report" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          } else {
+            "Coverage file not found" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }

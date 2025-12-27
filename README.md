@@ -1,62 +1,116 @@
 # Password Generator
 
-<img src="logo.png" width="250">
+[![CI](https://github.com/haseebn19/passgen/actions/workflows/ci.yml/badge.svg)](https://github.com/haseebn19/passgen/actions/workflows/ci.yml)
 
-Password Generator is a Windows Forms application designed to generate strong and customizable passwords. Built with C# and .NET 6.0, this application provides a user-friendly interface for generating passwords with different character sets and lengths. It also evaluates the strength of the generated passwords in real-time using the Zxcvbn library.
+<img src="logo.svg" alt="Logo" width="250">
+
+A modern WPF password generator with real-time strength evaluation.
 
 ## Screenshots
 
-**Main Window**
+<img src="docs/screenshot-window.png" alt="Main Window" width="500">
 
-<img src="screenshot-window.png" alt="Main Window" width="500">
-
-**After Generating a Password**
-
-<img src="screenshot-generated.png" alt="Generated Output" width="500">
+<img src="docs/screenshot-generated.png" alt="Generated Password" width="500">
 
 ## Features
 
-- **Character Set Selection**: Choose from lowercase, uppercase, numbers, and symbols for password generation.
-  
-- **Password Length**: Customize the length of the generated password.
-  
-- **Unique Characters**: Specify the number of unique characters in the password.
-  
-- **Strength Indicator**: Real-time password strength evaluation based on the Zxcvbn library.
-  
-- **Clipboard Support**: Easily copy the generated password to the clipboard.
+- **Character Options**: Lowercase, uppercase, numbers, and symbols
+- **Password Length**: Configurable from 4 to 128 characters
+- **Unique Characters**: Guarantee a minimum number of unique characters
+- **Strength Indicator**: Real-time evaluation using Zxcvbn
+- **System Theme**: Follows Windows dark/light mode
+- **Clipboard Support**: One-click copy to clipboard
 
 ## Prerequisites
 
-- .NET 6.0
-- Windows OS
+- Windows 10/11
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0/runtime)
 
 ## Installation
 
-1. Clone the repository:
-   ```powershell
-   git clone https://github.com/haseebn19/passgen.git
-   ```
-   
-2. Open the solution file in Visual Studio.
-
-3. Publish the project.
-
-4. Run the application.
+```powershell
+git clone https://github.com/haseebn19/passgen.git
+cd passgen
+dotnet restore
+```
 
 ## Usage
 
-1. Select the desired character sets and password length.
-  
-2. Optionally, specify the number of unique characters.
-  
-3. Click the "Generate" button to generate the password.
-  
-4. View the password strength and copy the password if needed.
+```powershell
+cd PassgenWPF
+dotnet run
+```
+
+1. Select character types to include
+2. Adjust password length and unique character count
+3. Click **Generate Password**
+4. Copy to clipboard with one click
+
+## Development
+
+### Setup
+
+```powershell
+git clone https://github.com/haseebn19/passgen.git
+cd passgen
+dotnet restore
+```
+
+### Testing
+
+```powershell
+dotnet test
+```
+
+With coverage:
+
+```powershell
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Linting
+
+```powershell
+dotnet build
+```
+
+Linting is enforced via `.editorconfig` and .NET analyzers during build.
+
+## Building
+
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
+```
+
+Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
+
+## Project Structure
+
+```
+passgen/
+├── PassgenWPF/              # Main application
+│   ├── Converters/          # XAML value converters
+│   ├── Helpers/             # Window and theme utilities
+│   ├── Services/            # Password generation logic
+│   ├── Themes/              # Dark and light color schemes
+│   ├── ViewModels/          # MVVM view models
+│   └── Views/               # XAML windows
+├── PassgenWPF.Tests/        # Unit tests
+└── docs/                    # Screenshots
+```
 
 ## Contributing
 
-If you'd like to contribute to the development of my password generator or have suggestions for improvements, please fork the repository and submit a pull request.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Credits
+
+- [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) - MVVM infrastructure
+- [zxcvbn-core](https://github.com/trichards57/zxcvbn-cs) - Password strength estimation
 
 ## License
 

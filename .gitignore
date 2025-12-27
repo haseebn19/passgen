@@ -44,6 +44,7 @@ Generated\ Files/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+TestResults/
 
 # NUnit
 *.VisualState.xml
@@ -150,6 +151,7 @@ coverage*.info
 # Visual Studio code coverage results
 *.coverage
 *.coveragexml
+coveragereport/
 
 # NCrunch
 _NCrunch_*
