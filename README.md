@@ -6,13 +6,19 @@
 
 A modern WPF password generator with real-time strength evaluation.
 
+## Screenshots
+
+<img src="docs/screenshot-window.png" alt="Main Window" width="500">
+
+<img src="docs/screenshot-generated.png" alt="Generated Password" width="500">
+
 ## Features
 
 - **Character Options**: Lowercase, uppercase, numbers, and symbols
 - **Password Length**: Configurable from 4 to 128 characters
 - **Unique Characters**: Guarantee a minimum number of unique characters
 - **Strength Indicator**: Real-time evaluation using Zxcvbn
-- **System Theme**: Title bar matches Windows dark/light mode
+- **System Theme**: Follows Windows dark/light mode
 - **Clipboard Support**: One-click copy to clipboard
 
 ## Prerequisites
@@ -22,9 +28,6 @@ A modern WPF password generator with real-time strength evaluation.
 
 ## Installation
 
-Download the latest release from [Releases](https://github.com/haseebn19/passgen/releases).
-
-Or build from source:
 ```powershell
 git clone https://github.com/haseebn19/passgen.git
 cd passgen
@@ -60,9 +63,9 @@ dotnet test
 ```
 
 With coverage:
+
 ```powershell
 dotnet test --collect:"XPlat Code Coverage"
-reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
 ```
 
 ### Linting
@@ -75,12 +78,6 @@ Linting is enforced via `.editorconfig` and .NET analyzers during build.
 
 ## Building
 
-Debug build:
-```powershell
-dotnet build
-```
-
-Release build (single file):
 ```powershell
 dotnet publish -c Release
 ```
@@ -93,12 +90,13 @@ Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
 passgen/
 ├── PassgenWPF/              # Main application
 │   ├── Converters/          # XAML value converters
-│   ├── Helpers/             # Window utilities
-│   ├── Services/            # Business logic
-│   ├── Themes/              # Colors and styles
+│   ├── Helpers/             # Window and theme utilities
+│   ├── Services/            # Password generation logic
+│   ├── Themes/              # Dark and light color schemes
 │   ├── ViewModels/          # MVVM view models
 │   └── Views/               # XAML windows
-└── PassgenWPF.Tests/        # Unit tests
+├── PassgenWPF.Tests/        # Unit tests
+└── docs/                    # Screenshots
 ```
 
 ## Contributing
