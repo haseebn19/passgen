@@ -79,7 +79,7 @@ Linting is enforced via `.editorconfig` and .NET analyzers during build.
 ## Building
 
 ```powershell
-dotnet publish -c Release
+dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
 ```
 
 Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
