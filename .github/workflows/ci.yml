@@ -39,7 +39,7 @@ jobs:
         run: dotnet restore
 
       - name: Run Tests with Coverage
-        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
