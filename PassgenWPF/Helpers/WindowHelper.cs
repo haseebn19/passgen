@@ -19,7 +19,8 @@ public static class WindowHelper
     public static void ApplySystemTheme(Window window)
     {
         var hwnd = new WindowInteropHelper(window).Handle;
-        if (hwnd == IntPtr.Zero) return;
+        if (hwnd == IntPtr.Zero)
+            return;
 
         var darkMode = IsSystemDarkMode() ? 1 : 0;
 

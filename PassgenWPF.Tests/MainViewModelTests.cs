@@ -1,5 +1,5 @@
-using Xunit;
 using PassgenWPF.ViewModels;
+using Xunit;
 
 namespace PassgenWPF.Tests;
 

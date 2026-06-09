@@ -75,10 +75,14 @@ public partial class MainViewModel : ObservableObject
         get
         {
             var available = 0;
-            if (IncludeLowercase) available += LowercaseCount;
-            if (IncludeUppercase) available += UppercaseCount;
-            if (IncludeNumbers) available += NumberCount;
-            if (IncludeSymbols) available += SymbolCount;
+            if (IncludeLowercase)
+                available += LowercaseCount;
+            if (IncludeUppercase)
+                available += UppercaseCount;
+            if (IncludeNumbers)
+                available += NumberCount;
+            if (IncludeSymbols)
+                available += SymbolCount;
             return Math.Min(available, PasswordLength);
         }
     }
