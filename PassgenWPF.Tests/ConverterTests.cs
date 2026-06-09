@@ -1,7 +1,7 @@
-using Xunit;
-using PassgenWPF.Converters;
 using System.Globalization;
 using System.Windows;
+using PassgenWPF.Converters;
+using Xunit;
 
 namespace PassgenWPF.Tests;
 

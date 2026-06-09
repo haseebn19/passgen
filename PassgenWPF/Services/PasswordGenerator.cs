@@ -55,10 +55,14 @@ public class PasswordGenerator : IPasswordGenerator
     private static List<string> GetCharacterSets(PasswordOptions options)
     {
         var sets = new List<string>();
-        if (options.IncludeLowercase) sets.Add(LowercaseChars);
-        if (options.IncludeUppercase) sets.Add(UppercaseChars);
-        if (options.IncludeNumbers) sets.Add(NumberChars);
-        if (options.IncludeSymbols) sets.Add(SymbolChars);
+        if (options.IncludeLowercase)
+            sets.Add(LowercaseChars);
+        if (options.IncludeUppercase)
+            sets.Add(UppercaseChars);
+        if (options.IncludeNumbers)
+            sets.Add(NumberChars);
+        if (options.IncludeSymbols)
+            sets.Add(SymbolChars);
         return sets;
     }
 
