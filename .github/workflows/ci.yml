@@ -4,16 +4,19 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build & Lint
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.x
 
@@ -28,10 +31,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.x
 
@@ -42,7 +45,7 @@ jobs:
         run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/**/coverage.cobertura.xml
