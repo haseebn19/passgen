@@ -4,7 +4,7 @@
 
 <img src="logo.svg" alt="Logo" width="250">
 
-A modern WPF password generator with real-time strength evaluation.
+A Windows password generator with configurable character sets and live strength estimates.
 
 ## Screenshots
 
@@ -82,7 +82,7 @@ Linting is enforced via `.editorconfig` and .NET analyzers during build.
 dotnet publish PassgenWPF -c Release
 ```
 
-Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe` (~1.2 MB)
+Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
 
 ## Project Structure
 
