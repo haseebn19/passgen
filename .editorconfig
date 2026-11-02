@@ -6,10 +6,13 @@ root = true
 [*]
 indent_style = space
 indent_size = 4
-end_of_line = crlf
+end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+[*.md]
+trim_trailing_whitespace = false
 
 [*.{cs,vb}]
 # Organize usings
@@ -102,11 +105,12 @@ dotnet_diagnostic.IDE0060.severity = suggestion
 # Code style enforcement
 dotnet_diagnostic.IDE0044.severity = suggestion
 
-[*.xaml]
-indent_size = 4
-
 [*.{csproj,props,targets}]
 indent_size = 2
 
 [*.{json,yml,yaml}]
 indent_size = 2
+
+# Visual Studio saves solution files with a byte order mark
+[*.sln]
+charset = utf-8-bom
