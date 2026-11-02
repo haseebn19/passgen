@@ -17,14 +17,15 @@ A Windows password generator with configurable character sets and live strength 
 - **Character Options**: Lowercase, uppercase, numbers, and symbols
 - **Password Length**: Configurable from 4 to 128 characters
 - **Unique Characters**: Guarantee a minimum number of unique characters
-- **Strength Indicator**: Real-time evaluation using Zxcvbn
-- **System Theme**: Follows Windows dark/light mode
-- **Clipboard Support**: One-click copy to clipboard
+- **Strength Indicator**: Real-time evaluation with zxcvbn, for generated or pasted passwords
+- **System Theme**: Follows Windows dark/light mode, including changes while the app is open
+- **Private Copy**: One-click copy that Windows keeps out of clipboard history and cloud sync
 
 ## Prerequisites
 
 - Windows 10/11
-- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0/runtime)
+- [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) to run the app
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) to build it
 
 ## Installation
 
@@ -44,17 +45,11 @@ dotnet run
 1. Select character types to include
 2. Adjust password length and unique character count
 3. Click **Generate Password**
-4. Copy to clipboard with one click
+4. Click **Copy** to copy it
+
+To check an existing password's strength, type or paste it into the password box.
 
 ## Development
-
-### Setup
-
-```powershell
-git clone https://github.com/haseebn19/passgen.git
-cd passgen
-dotnet restore
-```
 
 ### Testing
 
@@ -71,10 +66,11 @@ dotnet test --collect:"XPlat Code Coverage"
 ### Linting
 
 ```powershell
+dotnet format --verify-no-changes
 dotnet build
 ```
 
-Linting is enforced via `.editorconfig` and .NET analyzers during build.
+Code style rules live in `.editorconfig`. The .NET analyzers run during the build, and `dotnet format` fixes formatting.
 
 ## Building
 
@@ -82,30 +78,22 @@ Linting is enforced via `.editorconfig` and .NET analyzers during build.
 dotnet publish PassgenWPF -c Release
 ```
 
-Output: `PassgenWPF/bin/Release/net8.0-windows/win-x64/publish/Passgen.exe`
+Output: `PassgenWPF/bin/Release/net10.0-windows/win-x64/publish/Passgen.exe`
 
 ## Project Structure
 
-```
+```text
 passgen/
-├── PassgenWPF/              # Main application
-│   ├── Converters/          # XAML value converters
-│   ├── Helpers/             # Window and theme utilities
-│   ├── Services/            # Password generation logic
-│   ├── Themes/              # Dark and light color schemes
-│   ├── ViewModels/          # MVVM view models
-│   └── Views/               # XAML windows
-├── PassgenWPF.Tests/        # Unit tests
-└── docs/                    # Screenshots
++-- PassgenWPF/              Main application
+|   +-- Converters/          Strength meter converter
+|   +-- Helpers/             Theme, title bar, and clipboard utilities
+|   +-- Services/            Password generation
+|   +-- Themes/              Dark and light color schemes
+|   +-- ViewModels/          MVVM view models
+|   +-- Views/               XAML windows
++-- PassgenWPF.Tests/        xUnit tests
++-- docs/                    Screenshots
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## Credits
 

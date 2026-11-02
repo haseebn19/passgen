@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PassgenWPF.Helpers;
 using PassgenWPF.Services;
 using Zxcvbn;
 
@@ -9,10 +10,17 @@ namespace PassgenWPF.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private const int LowercaseCount = 26;
-    private const int UppercaseCount = 26;
-    private const int NumberCount = 10;
-    private const int SymbolCount = 32;
+    // Label and color for each zxcvbn score, from 0 (very weak) to 4 (strong)
+    private static readonly (string Text, Brush Brush)[] StrengthLevels =
+    [
+        ("Very Weak", FrozenBrush(239, 68, 68)),
+        ("Weak", FrozenBrush(249, 115, 22)),
+        ("Fair", FrozenBrush(234, 179, 8)),
+        ("Good", FrozenBrush(132, 204, 22)),
+        ("Strong", FrozenBrush(34, 197, 94)),
+    ];
+
+    private static readonly Brush NeutralBrush = FrozenBrush(128, 128, 128);
 
     private readonly IPasswordGenerator _generator;
     private CancellationTokenSource _strengthCts = new();
@@ -22,47 +30,37 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(IPasswordGenerator generator)
     {
         _generator = generator;
-        IncludeLowercase = true;
-        IncludeUppercase = true;
-        IncludeNumbers = true;
-        IncludeSymbols = true;
-        PasswordLength = 16;
-        UniqueChars = 12;
-        GeneratedPassword = string.Empty;
-        StrengthText = string.Empty;
     }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
-    private bool _includeLowercase;
+    [NotifyCanExecuteChangedFor(nameof(GeneratePasswordCommand))]
+    private bool _includeLowercase = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
-    private bool _includeUppercase;
+    [NotifyCanExecuteChangedFor(nameof(GeneratePasswordCommand))]
+    private bool _includeUppercase = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
-    private bool _includeNumbers;
+    [NotifyCanExecuteChangedFor(nameof(GeneratePasswordCommand))]
+    private bool _includeNumbers = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
-    private bool _includeSymbols;
+    [NotifyCanExecuteChangedFor(nameof(GeneratePasswordCommand))]
+    private bool _includeSymbols = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MaxUniqueChars))]
-    private int _passwordLength;
-
-    partial void OnPasswordLengthChanged(int value)
-    {
-        // Clamp unique chars when password length decreases
-        if (UniqueChars > MaxUniqueChars)
-            UniqueChars = MaxUniqueChars;
-    }
+    private int _passwordLength = 16;
 
     partial void OnIncludeLowercaseChanged(bool value) => ClampUniqueChars();
     partial void OnIncludeUppercaseChanged(bool value) => ClampUniqueChars();
     partial void OnIncludeNumbersChanged(bool value) => ClampUniqueChars();
     partial void OnIncludeSymbolsChanged(bool value) => ClampUniqueChars();
+    partial void OnPasswordLengthChanged(int value) => ClampUniqueChars();
 
     private void ClampUniqueChars()
     {
@@ -70,144 +68,111 @@ public partial class MainViewModel : ObservableObject
             UniqueChars = MaxUniqueChars;
     }
 
-    public int MaxUniqueChars
-    {
-        get
-        {
-            var available = 0;
-            if (IncludeLowercase)
-                available += LowercaseCount;
-            if (IncludeUppercase)
-                available += UppercaseCount;
-            if (IncludeNumbers)
-                available += NumberCount;
-            if (IncludeSymbols)
-                available += SymbolCount;
-            return Math.Min(available, PasswordLength);
-        }
-    }
+    /// <summary>
+    /// The most unique characters possible with the selected types and length.
+    /// </summary>
+    public int MaxUniqueChars => Math.Min(CurrentOptions().AvailableCharacters, PasswordLength);
 
     [ObservableProperty]
-    private int _uniqueChars;
+    private int _uniqueChars = 12;
 
     [ObservableProperty]
-    private string _generatedPassword;
+    [NotifyCanExecuteChangedFor(nameof(CopyToClipboardCommand))]
+    private string _generatedPassword = string.Empty;
 
-    partial void OnGeneratedPasswordChanged(string value) => EvaluateStrengthAsync(value);
+    // The password box is editable, so typed or pasted passwords are rated too
+    partial void OnGeneratedPasswordChanged(string value) => StrengthUpdate = UpdateStrengthAsync(value);
+
+    /// <summary>
+    /// The strength rating in progress for the current password.
+    /// </summary>
+    public Task StrengthUpdate { get; private set; } = Task.CompletedTask;
 
     [ObservableProperty]
-    private string _strengthText;
+    private string _strengthText = string.Empty;
 
     [ObservableProperty]
     private int _strengthValue;
 
     [ObservableProperty]
-    private Brush _strengthBrush = new SolidColorBrush(Colors.Gray);
-
-    [ObservableProperty]
-    private bool _isEvaluating;
-
-    [ObservableProperty]
-    private bool _isGenerating;
+    private Brush _strengthBrush = NeutralBrush;
 
     [ObservableProperty]
     private string _copyButtonText = "Copy";
 
-    [RelayCommand]
-    private async Task GeneratePasswordAsync()
+    private PasswordOptions CurrentOptions() => new()
     {
-        IsGenerating = true;
-        try
-        {
-            var options = new PasswordOptions
-            {
-                IncludeLowercase = IncludeLowercase,
-                IncludeUppercase = IncludeUppercase,
-                IncludeNumbers = IncludeNumbers,
-                IncludeSymbols = IncludeSymbols,
-                Length = PasswordLength,
-                UniqueChars = UniqueChars
-            };
+        IncludeLowercase = IncludeLowercase,
+        IncludeUppercase = IncludeUppercase,
+        IncludeNumbers = IncludeNumbers,
+        IncludeSymbols = IncludeSymbols,
+        Length = PasswordLength,
+        UniqueChars = UniqueChars
+    };
 
-            var result = await Task.Run(() => _generator.Generate(options));
+    private bool CanGeneratePassword() => IncludeLowercase || IncludeUppercase || IncludeNumbers || IncludeSymbols;
 
-            if (result.Success)
-            {
-                GeneratedPassword = result.Password;
-            }
-            else
-            {
-                ShowWarning(result.ErrorMessage!, "Invalid Configuration");
-            }
-        }
-        finally
-        {
-            IsGenerating = false;
-        }
+    [RelayCommand(CanExecute = nameof(CanGeneratePassword))]
+    private void GeneratePassword()
+    {
+        var result = _generator.Generate(CurrentOptions());
+        if (result.Success)
+            GeneratedPassword = result.Password;
+        else
+            MessageBox.Show(result.ErrorMessage, "Invalid Configuration", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
-    private static void ShowWarning(string message, string title)
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning));
-    }
+    private bool HasPassword() => !string.IsNullOrEmpty(GeneratedPassword);
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasPassword))]
     private async Task CopyToClipboardAsync()
     {
-        if (string.IsNullOrEmpty(GeneratedPassword))
-        {
-            MessageBox.Show("No password to copy.", "Nothing to Copy", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        Clipboard.SetText(GeneratedPassword);
-        CopyButtonText = "Copied!";
+        CopyButtonText = ClipboardHelper.TryCopyPrivately(GeneratedPassword) ? "Copied!" : "Try Again";
         await Task.Delay(2000);
         CopyButtonText = "Copy";
     }
 
-    private async void EvaluateStrengthAsync(string password)
+    private async Task UpdateStrengthAsync(string password)
     {
+        // Only the newest password's rating may update the meter
+        _strengthCts.Cancel();
+        _strengthCts.Dispose();
+        _strengthCts = new CancellationTokenSource();
+        var token = _strengthCts.Token;
+
         if (string.IsNullOrEmpty(password))
         {
-            StrengthValue = 0;
-            StrengthText = string.Empty;
-            StrengthBrush = new SolidColorBrush(Colors.Gray);
+            ShowStrength(0, string.Empty, NeutralBrush);
             return;
         }
 
-        _strengthCts.Cancel();
-        _strengthCts = new CancellationTokenSource();
-
-        // Reset visual state during evaluation
-        IsEvaluating = true;
-        StrengthValue = 0;
-        StrengthText = "Evaluating...";
-        StrengthBrush = new SolidColorBrush(Colors.Gray);
-
+        ShowStrength(0, "Evaluating...", NeutralBrush);
         try
         {
-            var result = await Task.Run(() => Core.EvaluatePassword(password), _strengthCts.Token);
+            var result = await Task.Run(() => Core.EvaluatePassword(password), token);
+            if (token.IsCancellationRequested)
+                return;
 
-            StrengthValue = result.Score * 25;
-            (StrengthText, StrengthBrush) = result.Score switch
-            {
-                0 => ("Very Weak", new SolidColorBrush(Color.FromRgb(239, 68, 68))),
-                1 => ("Weak", new SolidColorBrush(Color.FromRgb(249, 115, 22))),
-                2 => ("Fair", new SolidColorBrush(Color.FromRgb(234, 179, 8))),
-                3 => ("Good", new SolidColorBrush(Color.FromRgb(132, 204, 22))),
-                4 => ("Strong", new SolidColorBrush(Color.FromRgb(34, 197, 94))),
-                _ => (string.Empty, new SolidColorBrush(Colors.Gray))
-            };
+            var (text, brush) = StrengthLevels[Math.Clamp(result.Score, 0, StrengthLevels.Length - 1)];
+            ShowStrength(result.Score * 25, text, brush);
         }
         catch (OperationCanceledException)
         {
-            // Cancelled by newer evaluation
+            // A newer password is being rated
         }
-        finally
-        {
-            IsEvaluating = false;
-        }
+    }
+
+    private void ShowStrength(int value, string text, Brush brush)
+    {
+        StrengthValue = value;
+        StrengthText = text;
+        StrengthBrush = brush;
+    }
+
+    private static SolidColorBrush FrozenBrush(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
     }
 }

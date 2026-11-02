@@ -34,15 +34,19 @@ public class PasswordGeneratorTests
         Assert.Equal(length, result.Password.Length);
     }
 
-    [Fact]
-    public void Generate_LowercaseOnly_ContainsOnlyLowercase()
+    [Theory]
+    [InlineData(true, false, false, false, CharacterSets.Lowercase)]
+    [InlineData(false, true, false, false, CharacterSets.Uppercase)]
+    [InlineData(false, false, true, false, CharacterSets.Numbers)]
+    [InlineData(false, false, false, true, CharacterSets.Symbols)]
+    public void Generate_OneCharacterType_UsesOnlyThatType(bool lower, bool upper, bool numbers, bool symbols, string allowed)
     {
         var options = new PasswordOptions
         {
-            IncludeLowercase = true,
-            IncludeUppercase = false,
-            IncludeNumbers = false,
-            IncludeSymbols = false,
+            IncludeLowercase = lower,
+            IncludeUppercase = upper,
+            IncludeNumbers = numbers,
+            IncludeSymbols = symbols,
             Length = 20,
             UniqueChars = 0
         };
@@ -50,64 +54,7 @@ public class PasswordGeneratorTests
         var result = _generator.Generate(options);
 
         Assert.True(result.Success);
-        Assert.All(result.Password, c => Assert.True(char.IsLower(c)));
-    }
-
-    [Fact]
-    public void Generate_UppercaseOnly_ContainsOnlyUppercase()
-    {
-        var options = new PasswordOptions
-        {
-            IncludeLowercase = false,
-            IncludeUppercase = true,
-            IncludeNumbers = false,
-            IncludeSymbols = false,
-            Length = 20,
-            UniqueChars = 0
-        };
-
-        var result = _generator.Generate(options);
-
-        Assert.True(result.Success);
-        Assert.All(result.Password, c => Assert.True(char.IsUpper(c)));
-    }
-
-    [Fact]
-    public void Generate_NumbersOnly_ContainsOnlyDigits()
-    {
-        var options = new PasswordOptions
-        {
-            IncludeLowercase = false,
-            IncludeUppercase = false,
-            IncludeNumbers = true,
-            IncludeSymbols = false,
-            Length = 20,
-            UniqueChars = 0
-        };
-
-        var result = _generator.Generate(options);
-
-        Assert.True(result.Success);
-        Assert.All(result.Password, c => Assert.True(char.IsDigit(c)));
-    }
-
-    [Fact]
-    public void Generate_SymbolsOnly_ContainsOnlySymbols()
-    {
-        var options = new PasswordOptions
-        {
-            IncludeLowercase = false,
-            IncludeUppercase = false,
-            IncludeNumbers = false,
-            IncludeSymbols = true,
-            Length = 20,
-            UniqueChars = 0
-        };
-
-        var result = _generator.Generate(options);
-
-        Assert.True(result.Success);
-        Assert.All(result.Password, c => Assert.False(char.IsLetterOrDigit(c)));
+        Assert.All(result.Password, c => Assert.Contains(c, allowed));
     }
 
     [Fact]
@@ -235,5 +182,23 @@ public class PasswordGeneratorTests
 
         Assert.True(result.Success);
         Assert.Equal(1000, result.Password.Length);
+    }
+
+    [Theory]
+    [InlineData(true, true, true, true, 94)]
+    [InlineData(true, false, false, false, 26)]
+    [InlineData(false, false, true, true, 42)]
+    [InlineData(false, false, false, false, 0)]
+    public void AvailableCharacters_CountsTheSelectedTypes(bool lower, bool upper, bool numbers, bool symbols, int expected)
+    {
+        var options = new PasswordOptions
+        {
+            IncludeLowercase = lower,
+            IncludeUppercase = upper,
+            IncludeNumbers = numbers,
+            IncludeSymbols = symbols
+        };
+
+        Assert.Equal(expected, options.AvailableCharacters);
     }
 }

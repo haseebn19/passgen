@@ -6,24 +6,19 @@
         xmlns:vm="clr-namespace:PassgenWPF.ViewModels"
         xmlns:converters="clr-namespace:PassgenWPF.Converters"
         mc:Ignorable="d"
-        Title="Password Generator" 
+        Title="Password Generator"
         Width="440"
         MinWidth="440"
         MaxWidth="440"
         SizeToContent="Height"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BackgroundBrush}"
-        Icon="pack://application:,,,/logo.ico">
-    
+        Background="{DynamicResource BackgroundBrush}"
+        Icon="pack://application:,,,/Passgen;component/logo.ico">
+
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-
-    <Window.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
-    </Window.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -36,10 +31,10 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Password Generator" 
+            <TextBlock Text="Password Generator"
                        Style="{StaticResource HeadingStyle}"
                        FontSize="28"/>
-            <TextBlock Text="Generate strong, secure passwords instantly" 
+            <TextBlock Text="Pick the characters and length, then generate."
                        Style="{StaticResource SubheadingStyle}"
                        Margin="0,4,0,0"/>
         </StackPanel>
@@ -47,11 +42,11 @@
         <!-- Character Set Options -->
         <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
             <StackPanel>
-                <TextBlock Text="CHARACTER TYPES" 
+                <TextBlock Text="CHARACTER TYPES"
                            Style="{StaticResource LabelStyle}"
                            FontWeight="Bold"
                            Margin="0,0,0,12"/>
-                
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -67,18 +62,18 @@
                               IsChecked="{Binding IncludeLowercase}"
                               Style="{StaticResource ModernCheckBoxStyle}"
                               Margin="0,0,0,12"/>
-                    
+
                     <CheckBox Grid.Row="0" Grid.Column="1"
                               Content="Uppercase (A-Z)"
                               IsChecked="{Binding IncludeUppercase}"
                               Style="{StaticResource ModernCheckBoxStyle}"
                               Margin="0,0,0,12"/>
-                    
+
                     <CheckBox Grid.Row="1" Grid.Column="0"
                               Content="Numbers (0-9)"
                               IsChecked="{Binding IncludeNumbers}"
                               Style="{StaticResource ModernCheckBoxStyle}"/>
-                    
+
                     <CheckBox Grid.Row="1" Grid.Column="1"
                               Content="Symbols (!@#$)"
                               IsChecked="{Binding IncludeSymbols}"
@@ -96,30 +91,32 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Password Length -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Style="{StaticResource LabelStyle}">
                         <Run Text="PASSWORD LENGTH: "/>
-                        <Run Text="{Binding PasswordLength}" FontWeight="Bold" Foreground="{StaticResource PrimaryLightBrush}"/>
+                        <Run Text="{Binding PasswordLength}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                     </TextBlock>
                     <Slider Value="{Binding PasswordLength}"
+                            AutomationProperties.Name="Password length"
                             Minimum="4"
                             Maximum="128"
+                            IsSnapToTickEnabled="True"
                             Style="{StaticResource ModernSliderStyle}"
-                            ToolTip="{Binding PasswordLength}"/>
+                            ToolTip="Number of characters in the password"/>
                 </StackPanel>
 
-                <!-- Unique Characters -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Style="{StaticResource LabelStyle}">
                         <Run Text="UNIQUE CHARS: "/>
-                        <Run Text="{Binding UniqueChars}" FontWeight="Bold" Foreground="{StaticResource PrimaryLightBrush}"/>
+                        <Run Text="{Binding UniqueChars}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                     </TextBlock>
                     <Slider Value="{Binding UniqueChars}"
+                            AutomationProperties.Name="Unique characters"
                             Minimum="0"
                             Maximum="{Binding MaxUniqueChars}"
+                            IsSnapToTickEnabled="True"
                             Style="{StaticResource ModernSliderStyle}"
-                            ToolTip="{Binding UniqueChars}"/>
+                            ToolTip="At least this many characters will all be different"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -127,13 +124,14 @@
         <!-- Generated Password Output -->
         <Border Grid.Row="3" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
             <StackPanel>
-                <TextBlock Text="GENERATED PASSWORD" 
+                <TextBlock Text="GENERATED PASSWORD"
                            Style="{StaticResource LabelStyle}"
                            FontWeight="Bold"/>
-                
+
                 <TextBox Text="{Binding GeneratedPassword, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="Generated password"
                          Style="{StaticResource ModernTextBoxStyle}"
-                         IsReadOnly="False"/>
+                         ToolTip="Type or paste a password to check its strength"/>
 
                 <!-- Strength Indicator -->
                 <Grid Margin="0,12,0,0">
@@ -142,14 +140,14 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Progress Bar -->
-                    <Border Grid.Column="0" 
-                            Height="8" 
+                    <!-- Strength meter: the fill's width is the strength's share of the track -->
+                    <Border x:Name="StrengthTrack"
+                            Grid.Column="0"
+                            Height="8"
                             CornerRadius="4"
-                            Background="{StaticResource SurfaceLightBrush}"
+                            Background="{DynamicResource SurfaceLightBrush}"
                             Margin="0,0,12,0">
-                        <Border x:Name="StrengthBar"
-                                HorizontalAlignment="Left"
+                        <Border HorizontalAlignment="Left"
                                 CornerRadius="4"
                                 Background="{Binding StrengthBrush}">
                             <Border.Width>
@@ -158,16 +156,15 @@
                                         <converters:StrengthToWidthConverter/>
                                     </MultiBinding.Converter>
                                     <Binding Path="StrengthValue"/>
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border, AncestorLevel=2}"/>
+                                    <Binding Path="ActualWidth" ElementName="StrengthTrack"/>
                                 </MultiBinding>
                             </Border.Width>
                         </Border>
                     </Border>
 
-                    <!-- Strength Label -->
                     <TextBlock Grid.Column="1"
                                Text="{Binding StrengthText}"
-                               Foreground="{Binding StrengthBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                FontWeight="Bold"
                                FontSize="12"
                                VerticalAlignment="Center"
@@ -187,15 +184,8 @@
 
             <Button Grid.Column="0"
                     Command="{Binding GeneratePasswordCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}"
-                    IsEnabled="{Binding IsGenerating, Converter={converters:InverseBoolConverter}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Generating..."
-                               Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <TextBlock Text="Generate Password"
-                               Visibility="{Binding IsGenerating, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
-                </StackPanel>
-            </Button>
+                    Content="Generate Password"
+                    Style="{StaticResource PrimaryButtonStyle}"/>
 
             <Button Grid.Column="2"
                     Command="{Binding CopyToClipboardCommand}"
